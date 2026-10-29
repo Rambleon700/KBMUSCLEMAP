@@ -1,0 +1,1140 @@
+Oct 2026
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kettlebell Exercise Muscle Map</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              accent: '#f97316', // Orange highlight
+              primary: '#ef4444', // Red primary muscle highlight
+              secondary: '#eab308', // Yellow secondary muscle highlight
+              dark: '#0f172a',
+              card: '#1e293b'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Montserrat', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Muscle Map SVG Styling */
+    .muscle-group {
+      fill: #334155;
+      stroke: #1e293b;
+      stroke-width: 1.5;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .muscle-group:hover {
+      fill: #475569;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
+    }
+    
+    /* Muscle Activation Highlight States */
+    .muscle-group.primary {
+      fill: #ef4444 !important;
+      stroke: #fca5a5;
+      filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.8));
+      animation: pulse-primary 2s infinite alternate;
+    }
+    .muscle-group.secondary {
+      fill: #eab308 !important;
+      stroke: #fef08a;
+      filter: drop-shadow(0 0 6px rgba(234, 179, 8, 0.6));
+    }
+
+    /* Muscle Active Selection Outline */
+    .muscle-group.selected-filter {
+      stroke: #38bdf8 !important;
+      stroke-width: 2.5;
+    }
+
+    @keyframes pulse-primary {
+      0% { filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.6)); }
+      100% { filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.95)); }
+    }
+
+    /* Glassmorphism card effects */
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col antialiased selection:bg-rose-500 selection:text-white">
+
+  <!-- Navigation Header -->
+  <header class="border-b border-slate-800 bg-slate-900/90 sticky top-0 z-50 backdrop-blur-md px-4 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-orange-500 flex items-center justify-center shadow-lg shadow-rose-950/50">
+        <i class="fa-solid font-bold fa-dumbbell text-xl text-white"></i>
+      </div>
+      <div>
+        <h1 class="font-display font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-rose-400 bg-clip-text text-transparent">
+          Kettlebell MuscleMap
+        </h1>
+        <p class="text-xs text-slate-400 font-medium">Interactive Anatomical Kettlebell Guide</p>
+      </div>
+    </div>
+
+    <!-- Quick Stats & Legend Header Badge -->
+    <div class="flex items-center gap-4 text-xs">
+      <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/60">
+        <span class="w-3 h-3 rounded-full bg-rose-500 inline-block shadow-[0_0_8px_#ef4444]"></span>
+        <span class="text-slate-300">Primary Target</span>
+      </div>
+      <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/60">
+        <span class="w-3 h-3 rounded-full bg-amber-500 inline-block shadow-[0_0_8px_#eab308]"></span>
+        <span class="text-slate-300">Secondary / Stabilizer</span>
+      </div>
+      <button id="reset-filter-btn" class="hidden text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-rotate-right"></i> Reset Map Filter
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Grid Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Left / Top Controls Column: Selectors & Anatomical Model -->
+    <section class="lg:col-span-7 flex flex-col gap-6">
+
+      <!-- Exercise Selector Card -->
+      <div class="glass-panel rounded-2xl p-4 md:p-5 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <label for="exercise-select" class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-rose-500"></i> Select Kettlebell Movement:
+          </label>
+          <div class="relative flex-1 sm:max-w-xs">
+            <input type="text" id="exercise-search" placeholder="Search exercises or muscles..." 
+                   class="w-full bg-slate-900 border border-slate-700 rounded-lg text-xs py-2 pl-8 pr-3 text-slate-200 focus:outline-none focus:border-rose-500 transition">
+            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-500 text-xs"></i>
+          </div>
+        </div>
+
+        <select id="exercise-select" class="w-full bg-slate-900 border border-slate-700 text-slate-100 font-medium text-sm md:text-base rounded-xl px-4 py-3 focus:ring-2 focus:ring-rose-500 focus:outline-none transition cursor-pointer shadow-inner">
+          <!-- Populated by JavaScript -->
+        </select>
+
+        <div id="filter-banner" class="hidden bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs px-3 py-2 rounded-lg flex items-center justify-between">
+          <span id="filter-text">Filtered by muscle: <b>Deltoids</b></span>
+          <button onclick="resetMuscleFilter()" class="hover:text-white font-semibold underline text-xs">Show All</button>
+        </div>
+      </div>
+
+      <!-- Anatomical SVG Body Map Panel -->
+      <div class="glass-panel rounded-2xl p-5 shadow-xl flex flex-col items-center justify-center min-h-[480px] relative overflow-hidden">
+        
+        <!-- Interactive Helper Bar -->
+        <div class="w-full flex justify-between items-center mb-2 px-2 text-xs text-slate-400 font-medium">
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-hand-pointer text-rose-400"></i> Click any muscle to filter exercises</span>
+          <span id="active-hover-label" class="text-rose-400 font-semibold h-4"></span>
+        </div>
+
+        <!-- SVG Container (Front & Back Views Side by Side) -->
+        <div class="w-full flex items-center justify-center gap-2 sm:gap-8 my-auto">
+          
+          <!-- ANTERIOR (FRONT VIEW) -->
+          <div class="flex flex-col items-center">
+            <span class="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-2">Anterior (Front)</span>
+            <svg id="svg-front" viewBox="0 0 200 420" class="w-40 sm:w-52 h-auto max-h-[400px] filter drop-shadow-md">
+              <!-- Body Silhouette Outline (Subtle background) -->
+              <g opacity="0.15" fill="#64748b">
+                <path d="M100 15 C 112 15, 120 25, 120 40 C 120 52, 112 60, 100 60 C 88 60, 80 52, 80 40 C 80 25, 88 15, 100 15 Z" />
+                <path d="M72 65 C 80 60, 120 60, 128 65 L 148 78 L 165 140 L 150 200 L 140 190 L 148 135 L 132 85 L 132 170 L 126 230 L 122 380 L 102 380 L 101 240 L 99 240 L 98 380 L 78 380 L 74 230 L 68 170 L 68 85 L 52 135 L 60 190 L 50 200 L 35 140 L 52 78 Z" />
+              </g>
+
+              <!-- Head silhouette -->
+              <ellipse cx="100" cy="38" rx="14" ry="18" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+
+              <!-- MUSCLE GROUPS - FRONT -->
+              <!-- Traps Front -->
+              <path id="m-traps-front" class="muscle-group" data-muscle="traps" d="M86 58 C 92 56, 108 56, 114 58 L 122 68 L 78 68 Z">
+                <title>Trapezius (Traps)</title>
+              </path>
+
+              <!-- Deltoids Front (Left & Right) -->
+              <path id="m-deltoids-front-l" class="muscle-group" data-muscle="deltoids" d="M68 68 C 76 68, 78 72, 76 88 C 72 95, 62 92, 58 82 C 56 74, 62 70, 68 68 Z">
+                <title>Deltoids (Shoulders)</title>
+              </path>
+              <path id="m-deltoids-front-r" class="muscle-group" data-muscle="deltoids" d="M132 68 C 124 68, 122 72, 124 88 C 128 95, 138 92, 142 82 C 144 74, 138 70, 132 68 Z">
+                <title>Deltoids (Shoulders)</title>
+              </path>
+
+              <!-- Pectorals (Chest) -->
+              <path id="m-chest-l" class="muscle-group" data-muscle="chest" d="M78 70 L 98 72 L 98 96 L 76 94 C 74 85, 74 76, 78 70 Z">
+                <title>Pectorals (Chest)</title>
+              </path>
+              <path id="m-chest-r" class="muscle-group" data-muscle="chest" d="M122 70 L 102 72 L 102 96 L 124 94 C 126 85, 126 76, 122 70 Z">
+                <title>Pectorals (Chest)</title>
+              </path>
+
+              <!-- Biceps -->
+              <path id="m-biceps-l" class="muscle-group" data-muscle="biceps" d="M58 85 C 62 88, 64 105, 60 120 C 54 118, 52 102, 56 88 Z">
+                <title>Biceps</title>
+              </path>
+              <path id="m-biceps-r" class="muscle-group" data-muscle="biceps" d="M142 85 C 138 88, 136 105, 140 120 C 146 118, 148 102, 144 88 Z">
+                <title>Biceps</title>
+              </path>
+
+              <!-- Forearms Front -->
+              <path id="m-forearms-front-l" class="muscle-group" data-muscle="forearms" d="M58 124 C 62 126, 58 152, 52 165 C 47 160, 48 135, 54 125 Z">
+                <title>Forearms</title>
+              </path>
+              <path id="m-forearms-front-r" class="muscle-group" data-muscle="forearms" d="M142 124 C 138 126, 142 152, 148 165 C 153 160, 152 135, 146 125 Z">
+                <title>Forearms</title>
+              </path>
+
+              <!-- Abdominals (Core/Abs) -->
+              <path id="m-abs" class="muscle-group" data-muscle="abs" d="M82 98 L 118 98 L 115 152 L 85 152 Z">
+                <title>Abdominals (Core)</title>
+              </path>
+
+              <!-- Obliques -->
+              <path id="m-obliques-l" class="muscle-group" data-muscle="obliques" d="M74 96 L 80 98 L 83 150 L 73 142 Z">
+                <title>Obliques</title>
+              </path>
+              <path id="m-obliques-r" class="muscle-group" data-muscle="obliques" d="M126 96 L 120 98 L 117 150 L 127 142 Z">
+                <title>Obliques</title>
+              </path>
+
+              <!-- Quadriceps (Quads) -->
+              <path id="m-quads-l" class="muscle-group" data-muscle="quads" d="M74 165 C 80 162, 96 162, 97 165 L 95 242 C 84 240, 75 220, 72 190 Z">
+                <title>Quadriceps (Quads)</title>
+              </path>
+              <path id="m-quads-r" class="muscle-group" data-muscle="quads" d="M126 165 C 120 162, 104 162, 103 165 L 105 242 C 116 240, 125 220, 128 190 Z">
+                <title>Quadriceps (Quads)</title>
+              </path>
+
+              <!-- Calves Front -->
+              <path id="m-calves-front-l" class="muscle-group" data-muscle="calves" d="M75 260 C 82 260, 85 275, 84 315 C 77 310, 71 285, 73 268 Z">
+                <title>Calves</title>
+              </path>
+              <path id="m-calves-front-r" class="muscle-group" data-muscle="calves" d="M125 260 C 118 260, 115 275, 116 315 C 123 310, 129 285, 127 268 Z">
+                <title>Calves</title>
+              </path>
+            </svg>
+          </div>
+
+          <!-- POSTERIOR (BACK VIEW) -->
+          <div class="flex flex-col items-center">
+            <span class="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-2">Posterior (Back)</span>
+            <svg id="svg-back" viewBox="0 0 200 420" class="w-40 sm:w-52 h-auto max-h-[400px] filter drop-shadow-md">
+              <!-- Silhouette outline -->
+              <g opacity="0.15" fill="#64748b">
+                <ellipse cx="100" cy="38" rx="14" ry="18" />
+                <path d="M72 65 C 80 60, 120 60, 128 65 L 148 78 L 165 140 L 150 200 L 140 190 L 148 135 L 132 85 L 132 170 L 126 230 L 122 380 L 102 380 L 101 240 L 99 240 L 98 380 L 78 380 L 74 230 L 68 170 L 68 85 L 52 135 L 60 190 L 50 200 L 35 140 L 52 78 Z" />
+              </g>
+
+              <ellipse cx="100" cy="38" rx="14" ry="18" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+
+              <!-- MUSCLE GROUPS - BACK -->
+              <!-- Traps Back -->
+              <path id="m-traps-back" class="muscle-group" data-muscle="traps" d="M100 58 L 122 68 L 100 105 L 78 68 Z">
+                <title>Trapezius (Upper Back)</title>
+              </path>
+
+              <!-- Rear Deltoids -->
+              <path id="m-deltoids-back-l" class="muscle-group" data-muscle="deltoids" d="M68 68 C 76 68, 78 72, 76 88 C 70 90, 60 85, 58 82 C 56 74, 62 70, 68 68 Z">
+                <title>Rear Deltoids</title>
+              </path>
+              <path id="m-deltoids-back-r" class="muscle-group" data-muscle="deltoids" d="M132 68 C 124 68, 122 72, 124 88 C 130 90, 140 85, 142 82 C 144 74, 138 70, 132 68 Z">
+                <title>Rear Deltoids</title>
+              </path>
+
+              <!-- Latissimus Dorsi (Lats) -->
+              <path id="m-lats-l" class="muscle-group" data-muscle="lats" d="M78 88 L 98 102 L 95 135 L 72 110 Z">
+                <title>Latissimus Dorsi (Lats)</title>
+              </path>
+              <path id="m-lats-r" class="muscle-group" data-muscle="lats" d="M122 88 L 102 102 L 105 135 L 128 110 Z">
+                <title>Latissimus Dorsi (Lats)</title>
+              </path>
+
+              <!-- Lower Back / Erector Spinae -->
+              <path id="m-lowerback" class="muscle-group" data-muscle="lowerback" d="M95 105 L 105 105 L 108 152 L 92 152 Z">
+                <title>Erector Spinae (Lower Back)</title>
+              </path>
+
+              <!-- Triceps -->
+              <path id="m-triceps-l" class="muscle-group" data-muscle="triceps" d="M56 88 C 60 90, 62 106, 56 122 C 50 118, 50 100, 54 88 Z">
+                <title>Triceps</title>
+              </path>
+              <path id="m-triceps-r" class="muscle-group" data-muscle="triceps" d="M144 88 C 140 90, 138 106, 144 122 C 150 118, 150 100, 146 88 Z">
+                <title>Triceps</title>
+              </path>
+
+              <!-- Forearms Back -->
+              <path id="m-forearms-back-l" class="muscle-group" data-muscle="forearms" d="M56 124 C 60 126, 56 152, 50 165 C 45 160, 46 135, 52 125 Z">
+                <title>Forearms</title>
+              </path>
+              <path id="m-forearms-back-r" class="muscle-group" data-muscle="forearms" d="M144 124 C 140 126, 144 152, 150 165 C 155 160, 154 135, 148 125 Z">
+                <title>Forearms</title>
+              </path>
+
+              <!-- Gluteals (Glutes) -->
+              <path id="m-glutes-l" class="muscle-group" data-muscle="glutes" d="M74 155 C 85 152, 98 155, 98 190 C 82 195, 73 182, 74 155 Z">
+                <title>Gluteus Max (Glutes)</title>
+              </path>
+              <path id="m-glutes-r" class="muscle-group" data-muscle="glutes" d="M126 155 C 115 152, 102 155, 102 190 C 118 195, 127 182, 126 155 Z">
+                <title>Gluteus Max (Glutes)</title>
+              </path>
+
+              <!-- Hamstrings -->
+              <path id="m-hamstrings-l" class="muscle-group" data-muscle="hamstrings" d="M74 194 C 84 194, 97 192, 96 242 C 86 242, 75 225, 74 194 Z">
+                <title>Hamstrings</title>
+              </path>
+              <path id="m-hamstrings-r" class="muscle-group" data-muscle="hamstrings" d="M126 194 C 116 194, 103 192, 104 242 C 114 242, 125 225, 126 194 Z">
+                <title>Hamstrings</title>
+              </path>
+
+              <!-- Calves Back -->
+              <path id="m-calves-back-l" class="muscle-group" data-muscle="calves" d="M75 260 C 86 260, 86 280, 84 315 C 76 310, 71 285, 75 260 Z">
+                <title>Gastrocnemius (Calves)</title>
+              </path>
+              <path id="m-calves-back-r" class="muscle-group" data-muscle="calves" d="M125 260 C 114 260, 114 280, 116 315 C 124 310, 129 285, 125 260 Z">
+                <title>Gastrocnemius (Calves)</title>
+              </path>
+            </svg>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Right Column: Exercise Information Panel -->
+    <section class="lg:col-span-5 flex flex-col">
+      <div id="details-card" class="glass-panel rounded-2xl p-6 shadow-xl flex-1 flex flex-col justify-between space-y-6">
+        
+        <!-- Exercise Title & Category Header -->
+        <div class="space-y-2 border-b border-slate-800 pb-4">
+          <div class="flex items-center justify-between">
+            <span id="ex-category" class="text-xs font-bold uppercase tracking-wider text-rose-400 bg-rose-950/60 border border-rose-800/50 px-2.5 py-1 rounded-full">
+              Category
+            </span>
+            <span class="text-xs text-slate-400"><i class="fa-solid fa-fire text-amber-500 mr-1"></i> Full Body Dynamic</span>
+          </div>
+          <h2 id="ex-title" class="text-2xl font-display font-bold text-white tracking-tight">
+            Exercise Name
+          </h2>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Overview</h3>
+          <p id="ex-description" class="text-sm text-slate-300 leading-relaxed">
+            Detailed movement description will load here when an exercise is selected.
+          </p>
+        </div>
+
+        <!-- Muscles Targeted Badges -->
+        <div class="space-y-3">
+          <div>
+            <h3 class="text-xs font-semibold text-rose-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span> Primary Muscle Targets
+            </h3>
+            <div id="ex-primary-muscles" class="flex flex-wrap gap-1.5">
+              <!-- Badges loaded dynamically -->
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Secondary / Stabilizers
+            </h3>
+            <div id="ex-secondary-muscles" class="flex flex-wrap gap-1.5">
+              <!-- Badges loaded dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Step by Step Execution Instructions -->
+        <div class="space-y-2">
+          <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-list-ol text-slate-400"></i> Execution Steps
+          </h3>
+          <ol id="ex-steps" class="text-xs text-slate-300 space-y-1.5 list-decimal pl-4 leading-relaxed">
+            <!-- Steps loaded dynamically -->
+          </ol>
+        </div>
+
+        <!-- Pro Tip Box -->
+        <div class="bg-slate-900/80 rounded-xl p-3.5 border border-slate-800 flex items-start gap-3 text-xs">
+          <i class="fa-solid fa-lightbulb text-amber-400 text-base mt-0.5"></i>
+          <div>
+            <span class="font-semibold text-slate-200 block mb-0.5">Form Pro Tip</span>
+            <p id="ex-tip" class="text-slate-400 leading-normal">Kettlebell tips and posture guidelines.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <p>Kettlebell Muscle Map Guide &bull; Click diagram muscles to filter exercises or choose from the dropdown.</p>
+  </footer>
+
+  <!-- Application Logic -->
+  <script>
+    // Muscle Keys and Readable Names Map
+    const muscleNames = {
+      deltoids: "Deltoids (Shoulders)",
+      traps: "Trapezius & Upper Back",
+      chest: "Pectorals (Chest)",
+      biceps: "Biceps",
+      triceps: "Triceps",
+      forearms: "Forearms & Grip",
+      abs: "Rectus Abdominis (Core)",
+      obliques: "Obliques",
+      quads: "Quadriceps",
+      hamstrings: "Hamstrings",
+      glutes: "Gluteals (Glutes)",
+      lats: "Latissimus Dorsi (Lats)",
+      lowerback: "Erector Spinae (Lower Back)",
+      calves: "Calves"
+    };
+
+    // Exercise Database
+    const exercisesDatabase = [
+      // SWINGS
+      {
+        id: "kb-swing",
+        name: "Kettlebell Swing",
+        category: "Swings",
+        primary: ["hamstrings", "glutes"],
+        secondary: ["lowerback", "abs", "deltoids", "forearms", "lats"],
+        description: "The foundational kettlebell exercise. A hip-hinge movement that builds explosive posterior chain power, endurance, and core control.",
+        steps: [
+          "Stand with feet shoulder-width apart, kettlebell about a foot in front of you.",
+          "Hinge at hips, reach down and grip the bell handle with both hands.",
+          "Hike the kettlebell back between legs like a football snap.",
+          "Drive hips forward explosively to stand tall, swinging bell to chest level."
+        ],
+        tip: "Power comes from explosive hip snap, not pulling with your shoulders/arms."
+      },
+      {
+        id: "two-handed-swings",
+        name: "Two-Handed Swings",
+        category: "Swings",
+        primary: ["hamstrings", "glutes"],
+        secondary: ["lowerback", "abs", "forearms", "traps"],
+        description: "Standard bilateral kettlebell swing emphasizing symmetric hip extension, core bracing, and grip stability.",
+        steps: [
+          "Grip bell with both hands, maintaining neutral spine and retracted shoulders.",
+          "Hinge deeply at hips letting bell pass close under hips.",
+          "Squeeze glutes and lock out knees aggressively at the top."
+        ],
+        tip: "Keep arms relaxed like ropes; let hip momentum drive the kettlebell upwards."
+      },
+      {
+        id: "one-arm-swings",
+        name: "One-Arm Swings",
+        category: "Swings",
+        primary: ["hamstrings", "glutes", "obliques"],
+        secondary: ["forearms", "lats", "deltoids", "lowerback"],
+        description: "Unilateral swing variation that introduces anti-rotational stability and heightened grip strength demands.",
+        steps: [
+          "Set up like standard swing, but hold handle with one hand in center.",
+          "Hinge hips and hike bell back, keeping shoulders square.",
+          "Snap hips forward and park non-working hand out for balance."
+        ],
+        tip: "Resist the urge to rotate your torso at the bottom of the hinge."
+      },
+      {
+        id: "american-swings",
+        name: "American Swings",
+        category: "Swings",
+        primary: ["hamstrings", "glutes", "deltoids"],
+        secondary: ["traps", "abs", "lowerback", "triceps"],
+        description: "Variation where the kettlebell is driven overhead above skull level. Demands extra hip drive and shoulder mobility.",
+        steps: [
+          "Initiate standard hip hinge swing drive.",
+          "As bell passes chest, guide it directly overhead above head center.",
+          "Lock out arms overhead without arching lower back."
+        ],
+        tip: "Maintain tight abdominal bracing at top lockout to protect lower back."
+      },
+
+      // PRESSES & CLEANS
+      {
+        id: "shoulder-press",
+        name: "Shoulder Press",
+        category: "Presses & Cleans",
+        primary: ["deltoids", "triceps"],
+        secondary: ["traps", "chest", "abs"],
+        description: "Strict overhead press from kettlebell rack position to full overhead arm extension.",
+        steps: [
+          "Clean bell to rack position resting on forearm and chest crease.",
+          "Press overhead in slight arc until arm is locked out next to ear.",
+          "Lower back down with control to starting rack position."
+        ],
+        tip: "Squeeze glutes and brace core tightly to avoid leaning back during press."
+      },
+      {
+        id: "kb-press-ups",
+        name: "KB Press Ups",
+        category: "Presses & Cleans",
+        primary: ["chest", "triceps", "deltoids"],
+        secondary: ["abs", "forearms"],
+        description: "Push-up performed with hands gripping kettlebell handle(s), increasing wrist stabilization and chest range.",
+        steps: [
+          "Place kettlebell(s) on floor and grip handles firmly in push-up plank.",
+          "Lower chest toward handles while keeping elbows tucked at 45 degrees.",
+          "Press forcefully through palms back to plank position."
+        ],
+        tip: "Keep wrists straight and rigid to maintain stability over kettlebells."
+      },
+      {
+        id: "sitting-shoulder-press",
+        name: "Sitting Shoulder Press",
+        category: "Presses & Cleans",
+        primary: ["deltoids", "triceps"],
+        secondary: ["abs", "traps"],
+        description: "Seated press removing leg assistance, isolating overhead shoulder strength and core stability.",
+        steps: [
+          "Sit upright on floor or bench holding kettlebell at shoulder rack.",
+          "Maintain tall posture without leaning back into bench.",
+          "Press overhead to full arm lockout, then lower under control."
+        ],
+        tip: "Keep feet planted firmly on floor for grounded stability."
+      },
+      {
+        id: "overhead-press",
+        name: "Overhead Press",
+        category: "Presses & Cleans",
+        primary: ["deltoids", "triceps", "traps"],
+        secondary: ["abs", "upperback"],
+        description: "Classic vertical pushing strength test utilizing clean overhead trajectory and full shoulder girdle recruitment.",
+        steps: [
+          "Start in clean rack position.",
+          "Drive bell upward keeping vertical forearm alignment.",
+          "Finish with bicep aligned next to ear."
+        ],
+        tip: "Flare lats at bottom of movement to create solid launching pad."
+      },
+      {
+        id: "forward-press",
+        name: "Forward Press",
+        category: "Presses & Cleans",
+        primary: ["deltoids", "chest"],
+        secondary: ["abs", "forearms"],
+        description: "Horizontal press holding kettlebell at chest height and extending arms straight forward parallel to ground.",
+        steps: [
+          "Hold kettlebell by horns in front of chest.",
+          "Press bell directly forward away from chest until arms extend.",
+          "Pause for a moment, then pull back to chest."
+        ],
+        tip: "Keep core braced to prevent torso from leaning backward."
+      },
+      {
+        id: "front-raise",
+        name: "Front Raise",
+        category: "Presses & Cleans",
+        primary: ["deltoids"],
+        secondary: ["chest", "abs", "forearms"],
+        description: "Isolation exercise for anterior deltoids by raising kettlebell in front of body to eye level.",
+        steps: [
+          "Stand holding kettlebell by horns in front of thighs.",
+          "With slight bend in elbows, raise bell up in arc to eye level.",
+          "Lower slowly back down resisting gravity."
+        ],
+        tip: "Avoid swinging body or momentum to lift the kettlebell."
+      },
+      {
+        id: "sitting-forward-press",
+        name: "Sitting Forward Press",
+        category: "Presses & Cleans",
+        primary: ["deltoids", "chest"],
+        secondary: ["abs", "forearms"],
+        description: "Seated variation of horizontal press emphasizing anterior shoulder endurance and core stability.",
+        steps: [
+          "Sit upright on floor with legs extended or bent.",
+          "Hold bell at chest level and press straight forward.",
+          "Return under control to chest."
+        ],
+        tip: "Maintain strict upright spine without slouching thoracic spine."
+      },
+      {
+        id: "clean",
+        name: "Clean",
+        category: "Presses & Cleans",
+        primary: ["hamstrings", "glutes", "lat", "biceps", "forearms"],
+        secondary: ["traps", "abs", "lowerback"],
+        description: "Explosive pull transferring kettlebell from floor/swing position smoothly into front rack position.",
+        steps: [
+          "Hinge hips and hike kettlebell back between legs.",
+          "Snap hips forward and pull bell upward close to body.",
+          "Rotate hand under bell to catch smoothly in rack position."
+        ],
+        tip: "Keep bell close to body like zipping up a jacket to avoid banging forearm."
+      },
+      {
+        id: "clean-press",
+        name: "Clean & Press",
+        category: "Presses & Cleans",
+        primary: ["deltoids", "hamstrings", "glutes", "triceps"],
+        secondary: ["traps", "lats", "abs", "forearms"],
+        description: "Compound strength movement combining explosive hip clean followed immediately by strict overhead press.",
+        steps: [
+          "Clean kettlebell cleanly to shoulder rack position.",
+          "Pause, reset breath and press kettlebell straight overhead.",
+          "Lower bell back to rack, then back into hinge swing repetition."
+        ],
+        tip: "Pause brief moment in rack position to stabilize prior to pressing."
+      },
+      {
+        id: "snatch",
+        name: "Snatch",
+        category: "Presses & Cleans",
+        primary: ["hamstrings", "glutes", "deltoids", "traps"],
+        secondary: ["lats", "abs", "forearms", "lowerback"],
+        description: "The czar of kettlebell lifts. Takes bell from between legs overhead in one continuous fluid motion.",
+        steps: [
+          "Swing bell back between legs in deep hip hinge.",
+          "Drive hips forward explosively and pull bell upwards in vertical trajectory.",
+          "Punch hand through handle at top to lock out overhead without banging wrist."
+        ],
+        tip: "Tame the arc by keeping kettlebell close to body on the way up."
+      },
+
+      // SQUATS & DEADLIFT
+      {
+        id: "goblet-squats",
+        name: "Goblet Squats",
+        category: "Squats & Deadlift",
+        primary: ["quads", "glutes"],
+        secondary: ["abs", "hamstrings", "calves", "forearms"],
+        description: "Essential lower body exercise holding kettlebell at chest height while performing deep squat.",
+        steps: [
+          "Hold kettlebell by horns close against chest.",
+          "Squat down between knees keeping chest up and elbows inside knees.",
+          "Drive through heels to stand upright."
+        ],
+        tip: "Keep elbows pointed down to help keep chest lifted and back flat."
+      },
+      {
+        id: "suitcase-deadlift",
+        name: "Suitcase Deadlift",
+        category: "Squats & Deadlift",
+        primary: ["hamstrings", "glutes", "quads"],
+        secondary: ["obliques", "lowerback", "forearms"],
+        description: "Unilateral deadlift variation holding bell at side of leg, heavily challenging anti-lateral flexion of core.",
+        steps: [
+          "Place kettlebell on floor beside outer foot.",
+          "Hinge hips down, grab handle with one hand.",
+          "Stand up straight without tilting or leaning sideways."
+        ],
+        tip: "Keep shoulders completely square to floor throughout lift."
+      },
+      {
+        id: "deadlift",
+        name: "Deadlift",
+        category: "Squats & Deadlift",
+        primary: ["hamstrings", "glutes", "lowerback"],
+        secondary: ["quads", "lats", "traps", "forearms"],
+        description: "Fundamental posterior hinge lift pulling kettlebell off floor from between feet.",
+        steps: [
+          "Stand over kettlebell with handle aligned between ankles.",
+          "Hinge at hips, bend knees slightly, grab handle with both hands.",
+          "Drive hips forward to stand tall, pulling shoulders back."
+        ],
+        tip: "Engage lats and crush handle to protect lower back."
+      },
+      {
+        id: "squat-straighten-hamstrings",
+        name: "Squat Straighten Hamstrings Squat Stand Up",
+        category: "Squats & Deadlift",
+        primary: ["hamstrings", "quads", "glutes"],
+        secondary: ["lowerback", "calves"],
+        description: "Complex mobility and strength drill transitioning from deep squat to hamstring hinge stretches.",
+        steps: [
+          "Lower into deep goblet squat holding bell.",
+          "Lift hips while keeping hands on bell to stretch hamstrings.",
+          "Drop hips back into deep squat position.",
+          "Drive through heels to stand fully upright."
+        ],
+        tip: "Move rhythmically and focus on deep hamstring stretch at top of hinge."
+      },
+      {
+        id: "squat-to-woodchop",
+        name: "Squat to Woodchop",
+        category: "Squats & Deadlift",
+        primary: ["quads", "glutes", "obliques"],
+        secondary: ["deltoids", "abs", "hamstrings"],
+        description: "Dynamic multi-planar drill combining squat depth with diagonal rotational power.",
+        steps: [
+          "Squat down bringing kettlebell toward outside of one knee.",
+          "As you stand up, rotate torso diagonally and raise bell over opposite shoulder.",
+          "Return under control to low squat position."
+        ],
+        tip: "Pivot back foot as you rotate overhead to protect knees."
+      },
+
+      // CORE & ROTATION
+      {
+        id: "unilateral-front-squat",
+        name: "Unilateral Front Squat",
+        category: "Core & Rotation",
+        primary: ["quads", "glutes", "obliques"],
+        secondary: ["abs", "hamstrings", "traps"],
+        description: "Squat variation holding single kettlebell in single-arm rack position, demanding high core anti-rotation.",
+        steps: [
+          "Clean single kettlebell into rack position on one side.",
+          "Maintain tall chest and squat down until thighs are parallel.",
+          "Drive up evenly through both feet."
+        ],
+        tip: "Do not allow loaded weight to pull your torso to one side."
+      },
+      {
+        id: "double-rack-carry",
+        name: "Double Rack Carry",
+        category: "Core & Rotation",
+        primary: ["abs", "traps", "forearms"],
+        secondary: ["glutes", "quads", "deltoids"],
+        description: "Loaded carry exercise holding two kettlebells in front rack while walking controlled distances.",
+        steps: [
+          "Clean two kettlebells into front rack positions.",
+          "Walk forward with short upright deliberate steps.",
+          "Maintain tall spinal alignment without leaning backward."
+        ],
+        tip: "Breathe short shallow breaths into belly while maintaining tight abdominal brace."
+      },
+      {
+        id: "sitting-z-press",
+        name: "Sitting Z Press",
+        category: "Core & Rotation",
+        primary: ["deltoids", "triceps", "abs"],
+        secondary: ["traps", "lowerback"],
+        description: "Overhead press performed seated on floor with legs extended flat (Z position). Demands high hamstring flexibility and core verticality.",
+        steps: [
+          "Sit on floor with legs flat out in front in 'V' or 'Z' shape.",
+          "Rack kettlebell at shoulder level.",
+          "Press overhead without leaning back or bending knees."
+        ],
+        tip: "If hamstrings are tight, elevate hips slightly on a folded mat."
+      },
+      {
+        id: "sitting-overhead-twist-trident",
+        name: "Sitting Overhead Twist Trident",
+        category: "Core & Rotation",
+        primary: ["obliques", "abs", "deltoids"],
+        secondary: ["triceps", "traps"],
+        description: "Seated core rotation holding kettlebell overhead or in high rack while rotating spine side to side.",
+        steps: [
+          "Sit upright holding kettlebell overhead or in front rack.",
+          "Rotate upper torso smoothly to left side.",
+          "Return to center and rotate smoothly to right side."
+        ],
+        tip: "Keep pelvis and hips glued to floor; movement comes from thoracic spine."
+      },
+      {
+        id: "double-arm-shoulder-press",
+        name: "Double Arm Shoulder Press",
+        category: "Core & Rotation",
+        primary: ["deltoids", "triceps"],
+        secondary: ["chest", "abs", "traps"],
+        description: "Pressing single kettlebell overhead holding handle with both hands.",
+        steps: [
+          "Hold single kettlebell by horns at chest.",
+          "Press bell vertically overhead until both elbows lock.",
+          "Lower slowly to chest."
+        ],
+        tip: "Squeeze horns tight to engage upper back stabilizers."
+      },
+      {
+        id: "overhead-goblet-press",
+        name: "Overhead Goblet Press",
+        category: "Core & Rotation",
+        primary: ["deltoids", "triceps"],
+        secondary: ["abs", "traps"],
+        description: "Vertical overhead press starting from goblet position with focus on triceps and anterior deltoid engagement.",
+        steps: [
+          "Hold kettlebell upside-down (goblet grip) at chest.",
+          "Press bell straight up overhead.",
+          "Lower under control back to chest height."
+        ],
+        tip: "Keep elbows pointing somewhat forward rather than flared outwards."
+      },
+      {
+        id: "twist-on-knees",
+        name: "Twist on Knees",
+        category: "Core & Rotation",
+        primary: ["obliques", "abs"],
+        secondary: ["glutes", "deltoids"],
+        description: "Tall-kneeling core rotational exercise holding kettlebell, eliminating leg momentum.",
+        steps: [
+          "Kneel tall on both knees holding kettlebell in front of chest.",
+          "Rotate torso controlled from left to right.",
+          "Keep hips square facing forward."
+        ],
+        tip: "Squeeze glutes to lock hips in place so rotation stays in waist."
+      },
+      {
+        id: "half-knee-woodchop",
+        name: "Half Knee Woodchop",
+        category: "Core & Rotation",
+        primary: ["obliques", "abs"],
+        secondary: ["deltoids", "glutes", "lats"],
+        description: "Half-kneeling dynamic diagonal woodchop targeting core rotational power and hip stability.",
+        steps: [
+          "Set up in half-kneeling position (one knee down, one foot forward).",
+          "Hold kettlebell down beside hip of kneeling knee.",
+          "Chop diagonally up across torso over opposite shoulder."
+        ],
+        tip: "Engage glute of kneeling leg to stabilize pelvis throughout rotation."
+      },
+      {
+        id: "uppercut",
+        name: "Uppercut",
+        category: "Core & Rotation",
+        primary: ["obliques", "deltoids"],
+        secondary: ["abs", "biceps", "forearms"],
+        description: "Rotational punching motion driving kettlebell upward diagonally mimicking boxing motion.",
+        steps: [
+          "Hold kettlebell in rack or side grip with feet in athletic stance.",
+          "Pivot back foot and punch bell upward in diagonal uppercut path.",
+          "Return under control to starting side."
+        ],
+        tip: "Transfer force through floor from foot pivot up through hips."
+      },
+      {
+        id: "russian-twists",
+        name: "Russian Twists",
+        category: "Core & Rotation",
+        primary: ["obliques", "abs"],
+        secondary: ["hip flexors", "forearms"],
+        description: "Classic seated core rotation holding kettlebell while balancing on sit-bones.",
+        steps: [
+          "Sit on floor, lean back slightly at 45 degrees, lift feet off floor if possible.",
+          "Hold kettlebell in hands and rotate torso to tap bell beside hip.",
+          "Rotate back over center to tap opposite hip."
+        ],
+        tip: "Move chest and shoulders together; do not just move arms."
+      },
+      {
+        id: "standing-twist",
+        name: "Standing Twist",
+        category: "Core & Rotation",
+        primary: ["obliques", "abs"],
+        secondary: ["deltoids", "forearms"],
+        description: "Standing rotational core movement sweeping kettlebell across waist height.",
+        steps: [
+          "Stand shoulder-width apart holding bell at waist.",
+          "Rotate torso smoothly from side to side.",
+          "Pivot trailing heel to relieve knee torsion."
+        ],
+        tip: "Control tempo to avoid excessive momentum whipping waist."
+      },
+      {
+        id: "rotation-hip-to-op-shoulder",
+        name: "Rotation(Hip to Op Shoulder)",
+        category: "Core & Rotation",
+        primary: ["obliques", "deltoids"],
+        secondary: ["abs", "traps", "forearms"],
+        description: "Diagonal rotational chop moving bell from bottom hip up across to opposite shoulder peak.",
+        steps: [
+          "Hold bell at right hip with soft knees.",
+          "Rotate waist and lift bell diagonally up toward left shoulder.",
+          "Lower back down to right hip under control."
+        ],
+        tip: "Keep core braced throughout lift and lower path."
+      },
+      {
+        id: "slingshot",
+        name: "Slingshot",
+        category: "Core & Rotation",
+        primary: ["abs", "obliques", "forearms"],
+        secondary: ["deltoids", "lats"],
+        description: "Passing kettlebell hand-to-hand around waist in continuous circular orbit.",
+        steps: [
+          "Stand tall and pass kettlebell around waist from front hand to back hand.",
+          "Receive in back and pass around to front hand.",
+          "Maintain standing posture without swaying hips."
+        ],
+        tip: "Keep hips still like they are locked in cement."
+      },
+      {
+        id: "overhead-woodchoppers",
+        name: "Overhead Woodchoppers",
+        category: "Core & Rotation",
+        primary: ["abs", "obliques", "deltoids"],
+        secondary: ["triceps", "lats"],
+        description: "Vertical woodchop motion starting overhead and sweeping down diagonally across body.",
+        steps: [
+          "Hold kettlebell overhead with both hands.",
+          "Chop bell down diagonally past outside of hip.",
+          "Drive bell back overhead along same path."
+        ],
+        tip: "Control downswing using core abdominal resistance."
+      },
+      {
+        id: "sword-chop-hold-handle",
+        name: "Sword Chop(Hold Handle)",
+        category: "Core & Rotation",
+        primary: ["deltoids", "obliques"],
+        secondary: ["forearms", "abs", "triceps"],
+        description: "Unilateral diagonal pulling motion drawing kettlebell like drawing a sword from opposite hip.",
+        steps: [
+          "Grip kettlebell handle at left hip with right hand.",
+          "Draw bell diagonally across chest and up over right shoulder.",
+          "Return under control to starting hip."
+        ],
+        tip: "Lead movement with elbow before extending forearm at peak."
+      }
+    ];
+
+    // DOM Elements
+    const exerciseSelect = document.getElementById('exercise-select');
+    const searchInput = document.getElementById('exercise-search');
+    const filterBanner = document.getElementById('filter-banner');
+    const filterText = document.getElementById('filter-text');
+    const resetFilterBtn = document.getElementById('reset-filter-btn');
+    const activeHoverLabel = document.getElementById('active-hover-label');
+
+    const exTitle = document.getElementById('ex-title');
+    const exCategory = document.getElementById('ex-category');
+    const exDescription = document.getElementById('ex-description');
+    const exPrimaryMuscles = document.getElementById('ex-primary-muscles');
+    const exSecondaryMuscles = document.getElementById('ex-secondary-muscles');
+    const exSteps = document.getElementById('ex-steps');
+    const exTip = document.getElementById('ex-tip');
+
+    let activeMuscleFilter = null;
+
+    // Populate Dropdown
+    function populateDropdown(filterMuscle = null, searchQuery = '') {
+      exerciseSelect.innerHTML = '';
+
+      // Group exercises by category
+      const categories = {};
+      
+      exercisesDatabase.forEach(ex => {
+        // Filter logic
+        if (filterMuscle) {
+          const targets = [...ex.primary, ...ex.secondary];
+          if (!targets.includes(filterMuscle)) return;
+        }
+
+        if (searchQuery.trim() !== '') {
+          const q = searchQuery.toLowerCase();
+          const matchName = ex.name.toLowerCase().includes(q);
+          const matchCat = ex.category.toLowerCase().includes(q);
+          const matchMuscles = [...ex.primary, ...ex.secondary].some(m => (muscleNames[m] || m).toLowerCase().includes(q));
+          if (!matchName && !matchCat && !matchMuscles) return;
+        }
+
+        if (!categories[ex.category]) {
+          categories[ex.category] = [];
+        }
+        categories[ex.category].push(ex);
+      });
+
+      const catKeys = Object.keys(categories);
+
+      if (catKeys.length === 0) {
+        const opt = document.createElement('option');
+        opt.textContent = "No matching exercises found";
+        opt.disabled = true;
+        exerciseSelect.appendChild(opt);
+        return;
+      }
+
+      catKeys.forEach(cat => {
+        const group = document.createElement('optgroup');
+        group.label = cat;
+
+        categories[cat].forEach(ex => {
+          const opt = document.createElement('option');
+          opt.value = ex.id;
+          opt.textContent = ex.name;
+          group.appendChild(opt);
+        });
+
+        exerciseSelect.appendChild(group);
+      });
+
+      // Automatically highlight first exercise in list if valid
+      if (exerciseSelect.options.length > 0) {
+        exerciseSelect.selectedIndex = 0;
+        const firstExId = exerciseSelect.value;
+        loadExerciseDetails(firstExId);
+      }
+    }
+
+    // Highlight Muscle Groups on SVG
+    function highlightMuscles(primaryList, secondaryList) {
+      // Clear previous classes
+      document.querySelectorAll('.muscle-group').forEach(el => {
+        el.classList.remove('primary', 'secondary');
+      });
+
+      // Highlight Primary Muscles
+      primaryList.forEach(mKey => {
+        document.querySelectorAll(`.muscle-group[data-muscle="${mKey}"]`).forEach(el => {
+          el.classList.add('primary');
+        });
+      });
+
+      // Highlight Secondary Muscles
+      secondaryList.forEach(mKey => {
+        document.querySelectorAll(`.muscle-group[data-muscle="${mKey}"]`).forEach(el => {
+          el.classList.add('secondary');
+        });
+      });
+    }
+
+    // Display Exercise Details in Right Panel
+    function loadExerciseDetails(exerciseId) {
+      const exercise = exercisesDatabase.find(e => e.id === exerciseId);
+      if (!exercise) return;
+
+      exTitle.textContent = exercise.name;
+      exCategory.textContent = exercise.category;
+      exDescription.textContent = exercise.description;
+      exTip.textContent = exercise.tip;
+
+      // Primary Badges
+      exPrimaryMuscles.innerHTML = '';
+      exercise.primary.forEach(m => {
+        const badge = document.createElement('span');
+        badge.className = 'bg-rose-950/80 text-rose-300 border border-rose-800/80 px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5';
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>${muscleNames[m] || m}`;
+        exPrimaryMuscles.appendChild(badge);
+      });
+
+      // Secondary Badges
+      exSecondaryMuscles.innerHTML = '';
+      exercise.secondary.forEach(m => {
+        const badge = document.createElement('span');
+        badge.className = 'bg-amber-950/80 text-amber-300 border border-amber-800/80 px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5';
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>${muscleNames[m] || m}`;
+        exSecondaryMuscles.appendChild(badge);
+      });
+
+      // Steps
+      exSteps.innerHTML = '';
+      exercise.steps.forEach(step => {
+        const li = document.createElement('li');
+        li.textContent = step;
+        exSteps.appendChild(li);
+      });
+
+      // Highlight SVG Diagram
+      highlightMuscles(exercise.primary, exercise.secondary);
+    }
+
+    // Handle Muscle Click on Diagram
+    function filterByMuscle(muscleKey) {
+      activeMuscleFilter = muscleKey;
+      
+      // Update UI banner & buttons
+      filterText.innerHTML = `Filtered by: <b>${muscleNames[muscleKey] || muscleKey}</b>`;
+      filterBanner.classList.remove('hidden');
+      resetFilterBtn.classList.remove('hidden');
+
+      // Outline selected muscle
+      document.querySelectorAll('.muscle-group').forEach(el => {
+        if (el.dataset.muscle === muscleKey) {
+          el.classList.add('selected-filter');
+        } else {
+          el.classList.remove('selected-filter');
+        }
+      });
+
+      // Re-populate select dropdown with filtered results
+      populateDropdown(activeMuscleFilter, searchInput.value);
+    }
+
+    // Reset Muscle Filter
+    function resetMuscleFilter() {
+      activeMuscleFilter = null;
+      filterBanner.classList.add('hidden');
+      resetFilterBtn.classList.add('hidden');
+      document.querySelectorAll('.muscle-group').forEach(el => el.classList.remove('selected-filter'));
+      populateDropdown(null, searchInput.value);
+    }
+
+    // Event Listeners
+    exerciseSelect.addEventListener('change', (e) => {
+      loadExerciseDetails(e.target.value);
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      populateDropdown(activeMuscleFilter, e.target.value);
+    });
+
+    resetFilterBtn.addEventListener('click', resetMuscleFilter);
+
+    // SVG Muscle Interaction Events
+    document.querySelectorAll('.muscle-group').forEach(el => {
+      // Click to filter
+      el.addEventListener('click', () => {
+        const mKey = el.dataset.muscle;
+        filterByMuscle(mKey);
+      });
+
+      // Hover title feedback
+      el.addEventListener('mouseenter', () => {
+        const mKey = el.dataset.muscle;
+        activeHoverLabel.textContent = muscleNames[mKey] || mKey;
+      });
+
+      el.addEventListener('mouseleave', () => {
+        activeHoverLabel.textContent = '';
+      });
+    });
+
+    // Initial Load
+    window.onload = () => {
+      populateDropdown();
+    };
+  </script>
+
+</body>
+</html>
+```
